@@ -1,0 +1,154 @@
+//1. prompt user with a dialog box to select file to be loaded
+path = File.openDialog("Select input File");
+open(path); // open the file
+
+//get filename
+filename = getTitle()
+print("filename:" + filename)
+
+
+
+
+//2. prompt the user to set scalebar to known distance of 10 cm
+setTool("line");
+run("8-bit");//3. convert image to 8-bit grayscale
+title = "Set Scale";//dialog prompt
+msg = "Draw Scale line for 10cm bar, then click \"OK\".";
+waitForUser(title, msg);//display message
+run("Measure");//to get the length of the line drawn, to be printed to the log
+//print(Table.title);
+print("Drawn scale line is "+ Table.get("Length") + " pixels");
+drawnlngth = Table.get("Length")//take the length from measurement table and use to set scale
+run("Set Scale...", "distance="+drawnlngth+" known=10 unit=cm");//sets length to 10cm
+
+//4. prompt user to crop the region of interest
+setTool("rectangle");
+title = "Crop region of interest";//dialog prompt
+msg = "Draw rectangle around samples, then click \"OK\".";
+waitForUser(title, msg);//display message
+
+//5. crop selected rectangle
+run("Crop");
+
+//6. compute automatic threshold
+setAutoThreshold("Default dark no-reset");
+setOption("BlackBackground", true);
+run("Convert to Mask");
+run("Invert");//invert image so that background is black
+run("Fill Holes");//fill holes inside segments
+
+//7. set measurements to be produced in the 'results'
+run("Set Measurements...", "area perimeter feret's redirect=None decimal=3");
+
+//8. Run 'analyse particles' with a minimum area set to 2 cmsquared
+run("Analyze Particles...", "size=2-Infinity show=Outlines display clear");
+
+//9. Plot the feret diameter & Plot the fit bounding box, the width of which is equal to the feret diameter
+//set line width
+run("Line Width...", "line=10");
+//Add result segments to rois. This is to be used later to draw bounding rectangle
+for (i=0; i<nResults; i++) {
+      x = getResult('XStart', i);
+      y = getResult('YStart', i);
+      doWand(x,y);
+      roiManager("add");
+  }
+  
+//draw max ferets diameter  
+function drawAllFeretsDiameters() {
+    for (i=0; i<nResults; i++) {
+        x = getResult('XStart', i);
+        y = getResult('YStart', i);
+        doWand(x,y);
+        drawFeretsDiameter();
+        if (i%5==0) showProgress(i/nResults);
+   }
+    run("Select None");
+}
+
+function drawFeretsDiameter() {
+     requires("1.29n");
+     run("Line Width...", "line=10");
+     diameter = 0.0;
+     getSelectionCoordinates(xCoordinates, yCoordinates);
+     n = xCoordinates.length;
+     for (i=0; i<n; i++) {
+        for (j=i; j<n; j++) {
+            dx = xCoordinates[i] - xCoordinates[j];
+            dy = yCoordinates[i] - yCoordinates[j];
+            d = sqrt(dx*dx + dy*dy);
+            if (d>diameter) {
+                diameter = d;
+                i1 = i;
+                i2 = j;
+            }
+        }
+    }
+    setForegroundColor(255,127,255);
+    drawLine(xCoordinates[i1], yCoordinates[i1],xCoordinates[i2],yCoordinates[i2]);
+}
+
+//execute function to draw ferets diameter
+drawAllFeretsDiameters();  
+
+//draw bounding rectangles on the outlines
+nroi = roiManager("count");
+for (i=0; i<nroi; i++) {
+print(i);
+roiManager("Select", i);
+run("Fit Rectangle");
+run("Line Width...", "line=10");
+run("Draw", "slice");
+}  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+//save data
+//resultpath = outputdirectory + filename+"_result.csv";
+//File.append("filename, " + "smallest_distance,"+ "coordiatePoint1X,"+ "coordinatePoint1Y,"+"coordinatePoint1Y", resultpath);
+//File.append(filename + "," + distFinal + "," + xStart + "," + yStart + "," + uEnd + "," + vEnd, resultpath);
+//print("Saved to: "+ resultpath);
+//saveAs("tiff", outputdirectory + filename + "_drawn_distance.tif");
+
