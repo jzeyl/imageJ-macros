@@ -1,5 +1,5 @@
 # ImageJ plugins
-This repository is a collection of plugins to automate image analysis in [ImageJ](https://imagej.net/). Mainly these are written mainly written in the [ImageJ macro language](https://imagej.net/ij/developer/macro/macros.html#ext) and often include pop-up GUI dialog boxes to adjust routine parameters. These are 
+This repository is a collection of plugins to automate image analysis in [ImageJ](https://imagej.net/). Mainly these are written mainly written in the [ImageJ macro language](https://imagej.net/ij/developer/macro/macros.html) and often include pop-up GUI dialog boxes to adjust routine parameters. These are 
 |FileName|Purpose|
 |--------|-------|
 |*draw feretds diameter and bounding box.txt*|Routine to set scale, crop, detect threshold, and measure ferrets diameter of high contrast objects (leaf measurement)|
